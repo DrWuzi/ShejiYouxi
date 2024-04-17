@@ -1,19 +1,11 @@
-use thiserror::Error;
-use crate::lockfile::{Lockfile};
+#![allow(dead_code)]
 
-#[derive(Error)]
-enum LocalApiError {
+pub mod client;
+pub mod endpoint;
+pub mod error;
+pub mod query;
 
-}
-
-pub struct LocalApi {
-    lockfile: Lockfile,
-}
-
-impl LocalApi {
-    pub fn new(lockfile: Lockfile) -> Self {
-        Self { lockfile }
-    }
-
-
-}
+pub mod types;
+pub mod endpoints;
+pub mod clients;
+pub mod valorant_lockfile;

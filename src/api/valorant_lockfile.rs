@@ -1,3 +1,4 @@
+use std::fmt::Display;
 use std::{env, fs, io};
 use std::path::PathBuf;
 use thiserror::Error;
@@ -14,13 +15,13 @@ pub enum LockfileError {
     LockfileInvalid,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct Lockfile {
-    name: String,
-    pid: u32,
-    port: u16,
-    password: String,
-    protocol: String,
+    pub name: String,
+    pub pid: u32,
+    pub port: u16,
+    pub password: String,
+    pub protocol: String,
 }
 
 impl Lockfile {
@@ -58,5 +59,15 @@ impl Lockfile {
         let protocol = lockfile_parts.get(4).ok_or(LockfileError::LockfileInvalid)?.to_string();
 
         Ok(Self::new(name, pid, port, password, protocol))
+    }
+}
+
+impl Display for Lockfile {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}:{}:{}:{}:{}",
+            self.name, self.pid, self.port, self.password, self.protocol
+        )
     }
 }
