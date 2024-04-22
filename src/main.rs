@@ -1,7 +1,8 @@
 mod layout;
-mod lockfile;
+mod api;
 
-use crate::lockfile::Lockfile;
+use api::clients::valorant_api_local::{AsyncValorantApiLocal, ValorantApiLocal};
+use api::valorant_lockfile::Lockfile;
 use iced::executor;
 use iced::widget::keyed::column;
 use iced::widget::{button, column, Column, Row, Text};
@@ -28,6 +29,7 @@ struct App {
     theme: Theme,
     is_loading: bool,
     layout: Layout,
+    api: AsyncValorantApiLocal,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -43,11 +45,16 @@ impl Application for App {
     type Flags = ();
 
     fn new(flags: Self::Flags) -> (Self, Command<Self::Message>) {
+        let client = reqwest::Client::new();
+        let lockfile = Lockfile::new_from_lockfile()?;
+        let api = AsyncValorantApiLocal::new(client, lockfile);
+
         (
             Self {
                 theme: Theme::Dracula,
                 is_loading: false,
                 layout: Layout::new(600, 300, 20, 20, 20),
+                api,
             },
             Command::none(),
         )
