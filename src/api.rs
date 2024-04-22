@@ -9,3 +9,5 @@ pub mod types;
 pub mod endpoints;
 pub mod clients;
 pub mod valorant_lockfile;
+
+pub use error::ApiError;
