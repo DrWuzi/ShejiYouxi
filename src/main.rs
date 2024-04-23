@@ -8,12 +8,26 @@ use error::Result;
 use iced::executor;
 use iced::widget::{Column, Text};
 use iced::{window, Alignment, Application, Command, Element, Settings, Size, Theme};
+use crate::api::endpoints::local::friends::Friends;
+use crate::api::query::AsyncQuery;
+use crate::api::types::local::friends::Friend;
 use crate::layout::Layout;
 
-pub fn main() -> Result<()> {
+#[tokio::main]
+pub async fn main() -> Result<()> {
     if !cfg!(target_os = "windows") {
         panic!("This app can only be run on Windows.");
     }
+
+    let client = reqwest::Client::builder()
+        .danger_accept_invalid_certs(true)
+        .use_rustls_tls()
+        .build().expect("failed to build client");
+    let lockfile = Lockfile::new_from_lockfile().expect("Failed to read lockfile."); // TODO: Handle error correctly
+    let api = AsyncValorantApiLocal::new(client, lockfile);
+
+    let friends = Friends::new().query_async(&api).await.expect("failed to query friends");
+    println!("{:?}", friends);
 
     let settings: Settings<()> = Settings {
         window: window::Settings {
@@ -30,7 +44,6 @@ struct App {
     theme: Theme,
     is_loading: bool,
     layout: Layout,
-    api: AsyncValorantApiLocal,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -46,16 +59,11 @@ impl Application for App {
     type Flags = ();
 
     fn new(flags: Self::Flags) -> (Self, Command<Self::Message>) {
-        let client = reqwest::Client::new();
-        let lockfile = Lockfile::new_from_lockfile().expect("Failed to read lockfile."); // TODO: Handle error correctly
-        let api = AsyncValorantApiLocal::new(client, lockfile);
-
         (
             Self {
                 theme: Theme::Dracula,
                 is_loading: false,
                 layout: Layout::new(600, 300, 20, 20, 20),
-                api,
             },
             Command::none(),
         )
