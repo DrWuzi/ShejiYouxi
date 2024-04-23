@@ -1,14 +1,16 @@
+mod error;
 mod layout;
-mod lockfile;
+mod api;
 
-use crate::lockfile::Lockfile;
+use api::clients::valorant_api_local::AsyncValorantApiLocal;
+use api::valorant_lockfile::Lockfile;
+use error::Result;
 use iced::executor;
-use iced::widget::keyed::column;
-use iced::widget::{button, column, Column, Row, Text};
+use iced::widget::{Column, Text};
 use iced::{window, Alignment, Application, Command, Element, Settings, Size, Theme};
 use crate::layout::Layout;
 
-pub fn main() -> iced::Result {
+pub fn main() -> Result<()> {
     if !cfg!(target_os = "windows") {
         panic!("This app can only be run on Windows.");
     }
@@ -21,13 +23,14 @@ pub fn main() -> iced::Result {
         ..Default::default()
     };
 
-    App::run(settings)
+    Ok(App::run(settings)?)
 }
 
 struct App {
     theme: Theme,
     is_loading: bool,
     layout: Layout,
+    api: AsyncValorantApiLocal,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -43,11 +46,16 @@ impl Application for App {
     type Flags = ();
 
     fn new(flags: Self::Flags) -> (Self, Command<Self::Message>) {
+        let client = reqwest::Client::new();
+        let lockfile = Lockfile::new_from_lockfile().expect("Failed to read lockfile."); // TODO: Handle error correctly
+        let api = AsyncValorantApiLocal::new(client, lockfile);
+
         (
             Self {
                 theme: Theme::Dracula,
                 is_loading: false,
                 layout: Layout::new(600, 300, 20, 20, 20),
+                api,
             },
             Command::none(),
         )
