@@ -75,7 +75,7 @@ impl AsyncClient for AsyncValorantApiLocal {
         use futures_util::TryFutureExt;
         let call = || {
             async {
-                let token = format!("Basic {}", BASE64_STANDARD.encode(format!("riot:{}", self.lockfile)));
+                let token = format!("Basic {}", BASE64_STANDARD.encode(format!("riot:{}", self.lockfile.password)));
                 let mut token_value = HeaderValue::from_str(&token).unwrap();
                 token_value.set_sensitive(true);
                 let headers = request.headers_mut().unwrap();
