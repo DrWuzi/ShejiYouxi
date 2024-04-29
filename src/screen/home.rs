@@ -1,7 +1,7 @@
 use iced::widget::{button, column, container, text};
 use iced::{Command, Element, Renderer, Theme};
 
-use super::Action;
+use super::{Action, Screen};
 
 #[derive(Debug, Clone)]
 pub enum Message {
@@ -49,6 +49,8 @@ impl HomeScreen {
                 .on_press(Message::Action(Action::ChangeTheme(Theme::Dracula))),
             button(text("Set theme: Catppuccin Mocha"))
                 .on_press(Message::Action(Action::ChangeTheme(Theme::CatppuccinMocha))),
+            button(text("Quick Jump to Settings Screen"))
+                .on_press(Message::Action(Action::SwitchScreen(Screen::Settings))),
         ))
         .into()
     }
