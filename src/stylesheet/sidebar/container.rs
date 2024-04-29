@@ -16,12 +16,12 @@ impl container::StyleSheet for StyleSheet {
 
     fn appearance(&self, style: &Self::Style) -> Appearance {
         let palette = style.palette();
+        let fg = palette.text;
         let bg = Color::from_rgb(
             palette.background.r * 0.9,
             palette.background.g * 0.9,
             palette.background.b * 0.9,
         );
-        let fg = palette.text;
         Appearance {
             text_color: Some(fg),
             background: Some(Background::Color(bg)),
@@ -29,4 +29,3 @@ impl container::StyleSheet for StyleSheet {
         }
     }
 }
-

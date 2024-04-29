@@ -56,10 +56,11 @@ impl Application for App {
         #[cfg(target_os = "windows")]
         let lockfile = Lockfile::new_from_lockfile().expect("Failed to read lockfile."); // TODO: Handle error correctly
         #[cfg(not(target_os = "windows"))]
+        // Just a testing lockfile so that it doesn't crash during development
         let lockfile = Lockfile::new(
             "test".to_string(),
             100,
-            1600,
+            16000,
             "password".into(),
             "https".to_string(),
         );
