@@ -20,6 +20,6 @@ impl Endpoint for Presence {
     }
 
     fn endpoint(&self) -> String {
-        "chat/v4/presence".to_string()
+        "chat/v4/presences".to_string()
     }
 }

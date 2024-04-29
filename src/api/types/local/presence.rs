@@ -1,12 +1,12 @@
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct PresenceResponse {
     pub presences: Vec<PresenceDetails>,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct PresenceDetails {
     pub actor: Option<Value>,
     pub basic: String,
@@ -30,7 +30,7 @@ pub struct PresenceDetails {
     pub time: u64,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "lowercase")]
 pub enum PresenceState {
     Mobile,
@@ -39,7 +39,7 @@ pub enum PresenceState {
     Chat,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ProductType {
     Valorant,
