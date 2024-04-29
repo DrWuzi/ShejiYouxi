@@ -11,15 +11,15 @@ use error::Result;
 use iced::widget::{button, column, container, row, Column, Text};
 use iced::{executor, Length, Padding};
 use iced::{window, Alignment, Application, Command, Element, Settings, Size, Theme};
-use screen::home::{self, home_screen, HomeScreen};
-use screen::settings::{self, settings_screen, SettingsScreen};
+use screen::home::{self, HomeScreen};
+use screen::settings::{self, SettingsScreen};
 use screen::{Action, Screen};
 use stylesheet::sidebar;
 
 pub fn main() -> Result<()> {
     let settings: Settings<()> = Settings {
         window: window::Settings {
-            size: Size::new(600.0, 300.0),
+            size: Size::new(1000.0, 500.0),
             ..window::Settings::default()
         },
         ..Default::default()
@@ -52,7 +52,11 @@ impl Application for App {
     type Flags = ();
 
     fn new(flags: Self::Flags) -> (Self, Command<Self::Message>) {
-        let client = reqwest::Client::new();
+        let client = reqwest::Client::builder()
+            .danger_accept_invalid_certs(true)
+            .use_rustls_tls()
+            .build()
+            .expect("Failed to create reqwest client."); // TODO: Handle error correctly
         #[cfg(target_os = "windows")]
         let lockfile = Lockfile::new_from_lockfile().expect("Failed to read lockfile."); // TODO: Handle error correctly
         #[cfg(not(target_os = "windows"))]
@@ -64,19 +68,25 @@ impl Application for App {
             "password".into(),
             "https".to_string(),
         );
-        let api = AsyncValorantApiLocal::new(client, lockfile);
         let theme = Theme::Dracula;
+        let api = AsyncValorantApiLocal::new(client, lockfile);
+        let (home_screen, home_command) = HomeScreen::new(theme.clone(), api.clone());
+        let (settings_screen, settings_command) = SettingsScreen::new();
 
         (
             Self {
-                theme: theme.clone(),
+                theme,
                 api,
 
                 screen: Screen::Home,
-                home_screen: home_screen(theme),
-                settings_screen: settings_screen(),
+                home_screen,
+                settings_screen,
             },
-            Command::none(),
+            Command::batch(vec![
+                home_command.map(Message::HomeScreen),
+                settings_command.map(Message::SettingsScreen),
+                Command::none(),
+            ])
         )
     }
 
@@ -103,7 +113,10 @@ impl Application for App {
                         }
                     }
 
-                    self.home_screen.update(message);
+                    return match self.home_screen.update(message) {
+                        Some(command) => command.map(Message::HomeScreen),
+                        None => Command::none(),
+                    };
                 }
 
                 Command::none()
@@ -111,6 +124,11 @@ impl Application for App {
             Message::SettingsScreen(message) => {
                 if let Screen::Settings = &mut self.screen {
                     self.settings_screen.update(message);
+
+                    return match self.settings_screen.update(message) {
+                        Some(command) => command.map(Message::SettingsScreen),
+                        None => Command::none(),
+                    };
                 }
 
                 Command::none()

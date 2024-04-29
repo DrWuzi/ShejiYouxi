@@ -11,13 +11,12 @@ pub struct SettingsScreen {
     pub toggle: bool,
 }
 
-pub fn settings_screen() -> SettingsScreen {
-    SettingsScreen::new()
-}
-
 impl SettingsScreen {
-    pub fn new() -> Self {
-        Self { toggle: false }
+    pub fn new() -> (Self, Command<Message>) {
+        (
+            Self::default(),
+            Command::none()
+        )
     }
 
     pub fn update(&mut self, message: Message) -> Option<Command<Message>> {

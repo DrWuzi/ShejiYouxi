@@ -6,6 +6,7 @@ use crate::api::{client::{AsyncClient, Client, ClientHost}, error::ApiError, val
 
 use super::error::ValorantApiError;
 
+#[derive(Debug, Clone, Default)]
 pub struct ValorantApiLocal {
     client: reqwest::blocking::Client,
     lockfile: Lockfile,
@@ -51,6 +52,7 @@ impl Client for ValorantApiLocal {
     }
 }
 
+#[derive(Debug, Clone, Default)]
 pub struct AsyncValorantApiLocal {
     client: reqwest::Client,
     lockfile: Lockfile
