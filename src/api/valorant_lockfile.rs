@@ -15,7 +15,7 @@ pub enum LockfileError {
     LockfileInvalid,
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct Lockfile {
     pub name: String,
     pub pid: u32,

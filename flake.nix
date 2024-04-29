@@ -26,6 +26,17 @@
 
             pkg-config
             openssl
+            libxkbcommon
+            libGL
+
+            # WINIT_UNIX_BACKEND=wayland
+            wayland
+
+            # WINIT_UNIX_BACKEND=x11
+            xorg.libXcursor
+            xorg.libXrandr
+            xorg.libXi
+            xorg.libX11
           ] ++ pkgs.lib.optionals pkg.stdenv.isDarwin [
             darwin.apple_sdk.frameworks.SystemConfiguration
           ];

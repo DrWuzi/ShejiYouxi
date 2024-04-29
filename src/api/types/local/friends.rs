@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Friend {
     #[serde(rename = "activePlatform")]
     pub active_platform: Option<String>,
@@ -17,7 +17,7 @@ pub struct Friend {
     pub region: String,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct FriendsResponse {
     pub friends: Vec<Friend>,
 }
