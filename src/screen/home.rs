@@ -43,6 +43,7 @@ impl HomeScreen {
                 ..Default::default()
             },
             Command::perform(async move { Friends::new().query_async(&api).await }, |result| {
+                println!("{:?}", result);
                 match result {
                     Ok(friends) => Message::FriendsUpdated(Ok(friends.friends)),
                     Err(_) => Message::FriendsUpdated(Err(FriendsError::FailedToFetchFriends)),

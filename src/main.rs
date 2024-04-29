@@ -20,6 +20,7 @@ pub fn main() -> Result<()> {
     let settings: Settings<()> = Settings {
         window: window::Settings {
             size: Size::new(1000.0, 500.0),
+            min_size: Some(Size::new(400.0, 200.0)),
             ..window::Settings::default()
         },
         ..Default::default()
