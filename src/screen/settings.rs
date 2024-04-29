@@ -1,5 +1,5 @@
 use iced::widget::{column, container, text, toggler};
-use iced::{Command, Element, Renderer, Theme};
+use iced::{Command, Element, Renderer, Subscription, Theme};
 
 #[derive(Debug, Clone, Copy)]
 pub enum Message {
@@ -33,5 +33,9 @@ impl SettingsScreen {
             toggler("Toggle me!".to_string(), self.toggle, Message::Toggled),
         ))
         .into()
+    }
+
+    pub fn subscription(&self) -> Subscription<Message> {
+        Subscription::none()
     }
 }

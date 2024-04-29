@@ -9,7 +9,7 @@ use api::clients::valorant_api_local::AsyncValorantApiLocal;
 use api::valorant_lockfile::Lockfile;
 use error::Result;
 use iced::widget::{button, column, container, row, Column, Text};
-use iced::{executor, Length, Padding};
+use iced::{executor, Length, Padding, Subscription};
 use iced::{window, Alignment, Application, Command, Element, Settings, Size, Theme};
 use screen::home::{self, HomeScreen};
 use screen::settings::{self, SettingsScreen};
@@ -165,6 +165,13 @@ impl Application for App {
         .height(Length::Fill)
         .width(Length::Fill)
         .into()
+    }
+
+    fn subscription(&self) -> Subscription<Self::Message> {
+        Subscription::batch(vec![
+            self.home_screen.subscription().map(Message::HomeScreen),
+            self.settings_screen.subscription().map(Message::SettingsScreen),
+        ])
     }
 
     fn theme(&self) -> Theme {

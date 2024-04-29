@@ -1,6 +1,6 @@
 use chrono;
 use iced::widget::{button, column, Column, container, pick_list, row, Row, text, scrollable};
-use iced::{Command, Element, Renderer, Theme};
+use iced::{Command, Element, Renderer, Subscription, Theme};
 use iced::theme::Container;
 use crate::api::clients::valorant_api_local::AsyncValorantApiLocal;
 use crate::api::endpoints::local::friends::Friends;
@@ -24,6 +24,7 @@ pub enum Message {
     Increase,
     Decrease,
 
+    UpdateFriends,
     PresencesUpdated(Result<Vec<PresenceDetails>, ApiError>),
     FriendsUpdated(Result<Vec<friends::Friend>, ApiError>),
 }
@@ -67,14 +68,38 @@ impl HomeScreen {
     pub fn update(&mut self, message: Message) -> Option<Command<Message>> {
         match message {
             Message::Action(action) => match action {
-                Action::ChangeTheme(theme) => self.theme = theme,
-                _ => {}
+                Action::ChangeTheme(theme) => {
+                    self.theme = theme;
+                    None
+                },
+                _ => { None }
             },
             Message::Increase => {
                 self.count += 1;
+                None
             }
             Message::Decrease => {
                 self.count -= 1;
+                None
+            }
+            Message::UpdateFriends => {
+                let presence_api = self.api.clone();
+                let friends_api = self.api.clone();
+
+                Some(Command::batch( vec![
+                    Command::perform(async move { Presence::new().query_async(&presence_api).await }, |response| {
+                        match response {
+                            Ok(presences) => Message::PresencesUpdated(Ok(presences.presences)),
+                            Err(_) => Message::PresencesUpdated(Err(ApiError::FailedToFetchPresences)),
+                        }
+                    }),
+                    Command::perform(async move { Friends::new().query_async(&friends_api).await }, |response| {
+                        match response {
+                            Ok(friends) => Message::FriendsUpdated(Ok(friends.friends)),
+                            Err(_) => Message::FriendsUpdated(Err(ApiError::FailedToFetchFriends)),
+                        }
+                    }),
+                ]))
             }
             Message::PresencesUpdated(presences) => {
                 // - Push if friend not already in list.
@@ -87,6 +112,7 @@ impl HomeScreen {
                         friend.state = FriendState::Offline;
                     }
 
+                    // TODO: Filter out your own presence.
                     for presence in presences {
                         let friend = Friend::from(presence.clone());
                         if let Some(index) = friends.iter().position(|f| f.puuid == friend.puuid) {
@@ -98,6 +124,8 @@ impl HomeScreen {
 
                     self.friends = Some(friends);
                 }
+
+                None
             }
             Message::FriendsUpdated(friends) => {
                 // - Push if friend not already in list.
@@ -110,10 +138,10 @@ impl HomeScreen {
                     }
                     self.friends = Some(self_friends);
                 }
-            }
-        };
 
-        None
+                None
+            }
+        }
     }
 
     pub fn view(&self) -> Element<'_, Message, Theme, Renderer> {
@@ -162,6 +190,8 @@ impl HomeScreen {
                 pick_list(Theme::ALL, Some(&self.theme), |theme| {
                     Message::Action(Action::ChangeTheme(theme))
                 }),
+                button(text("Update Friends"))
+                    .on_press(Message::UpdateFriends),
 
                 column!(
                     row!(
@@ -182,6 +212,11 @@ impl HomeScreen {
             .spacing(10),
         )
         .into()
+    }
+
+    pub fn subscription(&self) -> Subscription<Message> {
+        iced::time::every(std::time::Duration::from_secs(60))
+            .map(|_| Message::UpdateFriends)
     }
 }
 
