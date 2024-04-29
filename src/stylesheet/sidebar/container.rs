@@ -18,9 +18,9 @@ impl container::StyleSheet for StyleSheet {
         let palette = style.palette();
         let fg = palette.text;
         let bg = Color::from_rgb(
-            palette.background.r * 0.9,
-            palette.background.g * 0.9,
-            palette.background.b * 0.9,
+            palette.background.r * 0.8,
+            palette.background.g * 0.8,
+            palette.background.b * 0.8,
         );
         Appearance {
             text_color: Some(fg),

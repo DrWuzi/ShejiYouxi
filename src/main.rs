@@ -65,14 +65,15 @@ impl Application for App {
             "https".to_string(),
         );
         let api = AsyncValorantApiLocal::new(client, lockfile);
+        let theme = Theme::Dracula;
 
         (
             Self {
-                theme: Theme::Dracula,
+                theme: theme.clone(),
                 api,
 
                 screen: Screen::Home,
-                home_screen: home_screen(),
+                home_screen: home_screen(theme),
                 settings_screen: settings_screen(),
             },
             Command::none(),
@@ -137,7 +138,10 @@ impl Application for App {
             .padding(Padding::from(10))
             .height(Length::Fill)
             .width(60),
-            container(screen).height(Length::Fill).width(Length::Fill)
+            container(screen)
+                .padding(Padding::from(10))
+                .height(Length::Fill)
+                .width(Length::Fill),
         )
         .height(Length::Fill)
         .width(Length::Fill)

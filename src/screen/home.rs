@@ -1,4 +1,4 @@
-use iced::widget::{button, column, container, text};
+use iced::widget::{button, column, container, pick_list, row, text};
 use iced::{Command, Element, Renderer, Theme};
 
 use super::{Action, Screen};
@@ -14,20 +14,24 @@ pub enum Message {
 #[derive(Debug, Clone, Default)]
 pub struct HomeScreen {
     pub count: i32,
+    pub theme: Theme,
 }
 
-pub fn home_screen() -> HomeScreen {
-    HomeScreen::new()
+pub fn home_screen(theme: Theme) -> HomeScreen {
+    HomeScreen::new(theme)
 }
 
 impl HomeScreen {
-    pub fn new() -> Self {
-        Self { count: 0 }
+    pub fn new(theme: Theme) -> Self {
+        Self { count: 0, theme }
     }
 
     pub fn update(&mut self, message: Message) -> Option<Command<Message>> {
         match message {
-            Message::Action(_) => {}
+            Message::Action(action) => match action {
+                Action::ChangeTheme(theme) => self.theme = theme,
+                _ => {}
+            },
             Message::Increase => {
                 self.count += 1;
             }
@@ -40,18 +44,28 @@ impl HomeScreen {
     }
 
     pub fn view(&self) -> Element<'_, Message, Theme, Renderer> {
-        container(column!(
-            text("Home Screen!"),
-            text(self.count.to_string()),
-            button(text("Increase")).on_press(Message::Increase),
-            button(text("Decrease")).on_press(Message::Decrease),
-            button(text("Set theme: Dracula"))
-                .on_press(Message::Action(Action::ChangeTheme(Theme::Dracula))),
-            button(text("Set theme: Catppuccin Mocha"))
-                .on_press(Message::Action(Action::ChangeTheme(Theme::CatppuccinMocha))),
-            button(text("Quick Jump to Settings Screen"))
-                .on_press(Message::Action(Action::SwitchScreen(Screen::Settings))),
-        ))
+        container(
+            column!(
+                text("Home Screen!"),
+                row!(
+                    button(text("Increase")).on_press(Message::Increase),
+                    text(self.count.to_string()),
+                    button(text("Decrease")).on_press(Message::Decrease),
+                )
+                .align_items(iced::Alignment::Center)
+                .spacing(10),
+                button(text("Set theme: Dracula"))
+                    .on_press(Message::Action(Action::ChangeTheme(Theme::Dracula))),
+                button(text("Set theme: Catppuccin Mocha"))
+                    .on_press(Message::Action(Action::ChangeTheme(Theme::CatppuccinMocha))),
+                button(text("Quick Jump to Settings Screen"))
+                    .on_press(Message::Action(Action::SwitchScreen(Screen::Settings))),
+                pick_list(Theme::ALL, Some(&self.theme), |theme| {
+                    Message::Action(Action::ChangeTheme(theme))
+                }),
+            )
+            .spacing(10),
+        )
         .into()
     }
 }
