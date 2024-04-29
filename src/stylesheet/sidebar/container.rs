@@ -15,12 +15,13 @@ impl container::StyleSheet for StyleSheet {
     type Style = iced::Theme;
 
     fn appearance(&self, style: &Self::Style) -> Appearance {
-        let palette = style.palette();
-        let fg = palette.text;
+        let palette = style.extended_palette();
+        let fg = palette.primary.base.text;
+        let modifier = if palette.is_dark { 0.8 } else { 0.9 };
         let bg = Color::from_rgb(
-            palette.background.r * 0.8,
-            palette.background.g * 0.8,
-            palette.background.b * 0.8,
+            palette.background.base.color.r * modifier,
+            palette.background.base.color.g * modifier,
+            palette.background.base.color.b * modifier,
         );
         Appearance {
             text_color: Some(fg),
